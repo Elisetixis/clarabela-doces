@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Clarabela Doces - Registro de Encomenda (Incremento 1)</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fff5f7; padding: 20px; max-width: 600px; margin: auto; }
+    h2 { color: #b83256; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, button { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    canvas { border: 1px dashed #b83256; background: #fafafa; margin-top: 5px; cursor: crosshair; }
+    button { background: #b83256; color: white; border: none; font-weight: bold; margin-top: 15px; cursor: pointer; }
+    button:hover { background: #962443; }
+    .resumo { margin-top: 20px; padding: 15px; background: #e8f5e9; border-left: 4px solid #2e7d32; display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Clarabela Doces — Nova Encomenda</h2>
+    <label>Nome do Cliente:</label>
+    <input type="text" id="cliente" placeholder="Ex: Mariana Silva">
+
+    <label>Produto:</label>
+    <select id="produto">
+      <option value="140">Bolo Ninho com Morango (2kg) - R$ 140,00</option>
+      <option value="110">Cento de Brigadeiro Gourmet - R$ 110,00</option>
+      <option value="95">Torta Limão Siciliano - R$ 95,00</option>
+    </select>
+
+    <label>Quantidade:</label>
+    <input type="number" id="qtd" value="1" min="1">
+
+    <label>Assinatura Digital do Cliente (Desenhe abaixo):</label>
+    <canvas id="canvasAssinatura" width="540" height="100"></canvas>
+
+    <button onclick="registrarEncomenda()">Registrar Encomenda</button>
+    <div id="resumo" class="resumo"></div>
+  </div>
+
+  <script>
+    // Lógica Orientada a Objetos (Classes do Modelo E3)
+    class Cliente {
+      constructor(nome) { this.nome = nome; }
+    }
+
+    class Encomenda {
+      constructor(cliente, produtoNome, valorUnitario, quantidade, assinado) {
+        this.cliente = cliente;
+        this.produtoNome = produtoNome;
+        this.valorUnitario = valorUnitario;
+        this.quantidade = quantidade;
+        this.assinado = assinado;
+        this.status = "Solicitado (Enviado para Cozinha)";
+      }
+      calcularTotal() { return this.valorUnitario * this.quantidade; }
+      calcularSinal() { return this.calcularTotal() * 0.5; }
+    }
+
+    // Controle do Canvas de Assinatura
+    const canvas = document.getElementById('canvasAssinatura');
+    const ctx = canvas.getContext('2d');
+    let desenhando = false, assinou = false;
+
+    canvas.addEventListener('mousedown', () => { desenhando = true; assinou = true; });
+    canvas.addEventListener('mouseup', () => { desenhando = false; ctx.beginPath(); });
+    canvas.addEventListener('mousemove', (e) => {
+      if (!desenhando) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineWidth = 2; ctx.lineCap = 'round';
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    function registrarEncomenda() {
+      const nome = document.getElementById('cliente').value;
+      const select = document.getElementById('produto');
+      const qtd = parseInt(document.getElementById('qtd').value);
+
+      if (!nome || !assinou) {
+        alert("Preencha o nome do cliente e colete a assinatura na tela!");
+        return;
+      }
+
+      const cliente = new Cliente(nome);
+      const pedido = new Encomenda(cliente, select.options[select.selectedIndex].text, parseFloat(select.value), qtd, true);
+
+      const divResumo = document.getElementById('resumo');
+      divResumo.style.display = 'block';
+      divResumo.innerHTML = `
+        <strong>Encomenda Registrada com Sucesso!</strong><br>
+        Cliente: ${pedido.cliente.nome}<br>
+        Item: ${pedido.quantidade}x ${pedido.produtoNome}<br>
+        Total: R$ ${pedido.calcularTotal().toFixed(2)} | Sinal (50%): R$ ${pedido.calcularSinal().toFixed(2)}<br>
+        Status: <b>${pedido.status}</b> | Assinatura: Confirmada
+      `;
+    }
+  </script>
+</body>
+</html>
