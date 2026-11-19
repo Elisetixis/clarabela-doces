@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Clarabela Doces - Registro de Encomenda (Incremento 1)</title>
+  <title>Clarabela Doces - Registro de Encomenda (E4)</title>
   <style>
     body { font-family: Arial, sans-serif; background: #fff5f7; padding: 20px; max-width: 600px; margin: auto; }
     h2 { color: #b83256; }
@@ -13,6 +13,7 @@
     button { background: #b83256; color: white; border: none; font-weight: bold; margin-top: 15px; cursor: pointer; }
     button:hover { background: #962443; }
     .resumo { margin-top: 20px; padding: 15px; background: #e8f5e9; border-left: 4px solid #2e7d32; display: none; }
+    .caixa { margin-top: 10px; padding: 10px; background: #e3f2fd; border-left: 4px solid #1565c0; font-size: 0.9em; }
   </style>
 </head>
 <body>
@@ -20,6 +21,9 @@
     <h2>Clarabela Doces — Nova Encomenda</h2>
     <label>Nome do Cliente:</label>
     <input type="text" id="cliente" placeholder="Ex: Mariana Silva">
+
+    <label>Telefone / WhatsApp:</label>
+    <input type="text" id="telefone" placeholder="Ex: (12) 99999-0000">
 
     <label>Produto:</label>
     <select id="produto">
@@ -31,33 +35,47 @@
     <label>Quantidade:</label>
     <input type="number" id="qtd" value="1" min="1">
 
+    <label>Data e Hora da Entrega:</label>
+    <input type="datetime-local" id="dataEntrega">
+
     <label>Assinatura Digital do Cliente (Desenhe abaixo):</label>
     <canvas id="canvasAssinatura" width="540" height="100"></canvas>
 
-    <button onclick="registrarEncomenda()">Registrar Encomenda</button>
+    <button onclick="registrarEncomenda()">Registrar Encomenda e Lançar Sinal</button>
     <div id="resumo" class="resumo"></div>
   </div>
 
   <script>
-    // Lógica Orientada a Objetos (Classes do Modelo E3)
     class Cliente {
-      constructor(nome) { this.nome = nome; }
+      constructor(nome, telefone) {
+        this.nome = nome;
+        this.telefone = telefone;
+      }
+    }
+
+    class MovimentacaoCaixa {
+      constructor(descricao, valor) {
+        this.tipo = "Entrada";
+        this.descricao = descricao;
+        this.valor = valor;
+        this.dataHora = new Date().toLocaleString("pt-BR");
+      }
     }
 
     class Encomenda {
-      constructor(cliente, produtoNome, valorUnitario, quantidade, assinado) {
+      constructor(cliente, produtoNome, valorUnitario, quantidade, dataEntrega, assinado) {
         this.cliente = cliente;
         this.produtoNome = produtoNome;
         this.valorUnitario = valorUnitario;
         this.quantidade = quantidade;
+        this.dataEntrega = dataEntrega;
         this.assinado = assinado;
-        this.status = "Solicitado (Enviado para Cozinha)";
+        this.status = "Solicitado";
       }
       calcularTotal() { return this.valorUnitario * this.quantidade; }
       calcularSinal() { return this.calcularTotal() * 0.5; }
     }
 
-    // Controle do Canvas de Assinatura
     const canvas = document.getElementById('canvasAssinatura');
     const ctx = canvas.getContext('2d');
     let desenhando = false, assinou = false;
@@ -74,27 +92,33 @@
 
     function registrarEncomenda() {
       const nome = document.getElementById('cliente').value;
+      const telefone = document.getElementById('telefone').value;
       const select = document.getElementById('produto');
       const qtd = parseInt(document.getElementById('qtd').value);
+      const dataEntrega = document.getElementById('dataEntrega').value;
 
-      if (!nome || !assinou) {
-        alert("Preencha o nome do cliente e colete a assinatura na tela!");
+      if (!nome || !telefone || !dataEntrega || !assinou) {
+        alert("Preencha nome, telefone, data de entrega e colete a assinatura!");
         return;
       }
 
-      const cliente = new Cliente(nome);
-      const pedido = new Encomenda(cliente, select.options[select.selectedIndex].text, parseFloat(select.value), qtd, true);
+      const cliente = new Cliente(nome, telefone);
+      const pedido = new Encomenda(cliente, select.options[select.selectedIndex].text, parseFloat(select.value), qtd, dataEntrega, true);
+      const lancamentoCaixa = new MovimentacaoCaixa(`Sinal 50% - Encomenda (${cliente.nome})`, pedido.calcularSinal());
 
       const divResumo = document.getElementById('resumo');
       divResumo.style.display = 'block';
       divResumo.innerHTML = `
-        <strong>Encomenda Registrada com Sucesso!</strong><br>
-        Cliente: ${pedido.cliente.nome}<br>
+        <strong>Encomenda Registrada (D3 | Encomendas)</strong><br>
+        Cliente: ${pedido.cliente.nome} (${pedido.cliente.telefone})<br>
         Item: ${pedido.quantidade}x ${pedido.produtoNome}<br>
-        Total: R$ ${pedido.calcularTotal().toFixed(2)} | Sinal (50%): R$ ${pedido.calcularSinal().toFixed(2)}<br>
-        Status: <b>${pedido.status}</b> | Assinatura: Confirmada
+        Entrega: ${pedido.dataEntrega.replace("T", " ")} | Status: <b>${pedido.status}</b><br>
+        Total: R$ ${pedido.calcularTotal().toFixed(2)} | Sinal (50%): R$ ${pedido.calcularSinal().toFixed(2)}
+        <div class="caixa">
+          <strong>Lançamento Automático (D4 | Caixa):</strong><br>
+          ${lancamentoCaixa.tipo}: R$ ${lancamentoCaixa.valor.toFixed(2)} — ${lancamentoCaixa.descricao} (${lancamentoCaixa.dataHora})
+        </div>
       `;
     }
   </script>
 </body>
-</html>
