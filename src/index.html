@@ -2,79 +2,73 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Clarabela Doces - Registro de Encomenda (E4)</title>
+  <title>Clarabela Doces - Gestão de Encomendas e Produção (v0.2.0)</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #fff5f7; padding: 20px; max-width: 600px; margin: auto; }
-    h2 { color: #b83256; }
+    body { font-family: Arial, sans-serif; background: #fff5f7; padding: 20px; max-width: 850px; margin: auto; }
+    h2, h3 { color: #b83256; margin-top: 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select, button { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9em; }
+    input, select, button { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
     canvas { border: 1px dashed #b83256; background: #fafafa; margin-top: 5px; cursor: crosshair; }
-    button { background: #b83256; color: white; border: none; font-weight: bold; margin-top: 15px; cursor: pointer; }
+    button { background: #b83256; color: white; border: none; font-weight: bold; margin-top: 12px; cursor: pointer; border-radius: 4px; }
     button:hover { background: #962443; }
-    .resumo { margin-top: 20px; padding: 15px; background: #e8f5e9; border-left: 4px solid #2e7d32; display: none; }
-    .caixa { margin-top: 10px; padding: 10px; background: #e3f2fd; border-left: 4px solid #1565c0; font-size: 0.9em; }
+    .btn-secundario { background: #1565c0; font-size: 0.85em; padding: 6px; margin-top: 8px; }
+    .btn-limpar { background: #757575; font-size: 0.8em; padding: 4px; margin-top: 4px; }
+    .pedido-item { border: 1px solid #f0d0d8; padding: 10px; border-radius: 6px; margin-bottom: 10px; background: #fffafb; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; background: #ffe082; color: #5d4037; }
+    .caixa-box { margin-top: 15px; padding: 12px; background: #e3f2fd; border-left: 4px solid #1565c0; font-size: 0.9em; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Clarabela Doces — Nova Encomenda</h2>
-    <label>Nome do Cliente:</label>
-    <input type="text" id="cliente" placeholder="Ex: Mariana Silva">
+  <h2>🧁 Clarabela Doces — Sistema de Gestão (v0.2.0-e5)</h2>
+  <div class="grid">
+    <!-- Coluna 1: Atendimento / Nova Encomenda -->
+    <div class="card">
+      <h3>1. Nova Encomenda (Balcão)</h3>
+      <label>Nome do Cliente:</label>
+      <input type="text" id="cliente" placeholder="Ex: Mariana Silva">
 
-    <label>Telefone / WhatsApp:</label>
-    <input type="text" id="telefone" placeholder="Ex: (12) 99999-0000">
+      <label>Telefone / WhatsApp:</label>
+      <input type="text" id="telefone" placeholder="Ex: (12) 99999-0000">
 
-    <label>Produto:</label>
-    <select id="produto">
-      <option value="140">Bolo Ninho com Morango (2kg) - R$ 140,00</option>
-      <option value="110">Cento de Brigadeiro Gourmet - R$ 110,00</option>
-      <option value="95">Torta Limão Siciliano - R$ 95,00</option>
-    </select>
+      <label>Produto:</label>
+      <select id="produto">
+        <option value="140">Bolo Ninho com Morango (2kg) - R$ 140,00</option>
+        <option value="110">Cento de Brigadeiro Gourmet - R$ 110,00</option>
+        <option value="95">Torta Limão Siciliano - R$ 95,00</option>
+      </select>
 
-    <label>Quantidade:</label>
-    <input type="number" id="qtd" value="1" min="1">
+      <label>Quantidade:</label>
+      <input type="number" id="qtd" value="1" min="1">
 
-    <label>Data e Hora da Entrega:</label>
-    <input type="datetime-local" id="dataEntrega">
+      <label>Data e Hora da Entrega:</label>
+      <input type="datetime-local" id="dataEntrega">
 
-    <label>Assinatura Digital do Cliente (Desenhe abaixo):</label>
-    <canvas id="canvasAssinatura" width="540" height="100"></canvas>
+      <label>Assinatura Digital (Desenhe abaixo):</label>
+      <canvas id="canvasAssinatura" width="350" height="80"></canvas>
+      <button type="button" class="btn-limpar" onclick="limparAssinatura()">Limpar Assinatura</button>
 
-    <button onclick="registrarEncomenda()">Registrar Encomenda e Lançar Sinal</button>
-    <div id="resumo" class="resumo"></div>
+      <button onclick="registrarEncomenda()">Registrar Encomenda e Sinal (50%)</button>
+    </div>
+
+    <!-- Coluna 2: Fila da Confeitaria e Caixa -->
+    <div class="card">
+      <h3>2. Fila de Produção (Confeitaria)</h3>
+      <div id="listaPedidos"><p style="color:#666; font-size:0.9em;">Nenhuma encomenda na fila ainda.</p></div>
+
+      <div class="caixa-box">
+        <strong>💰 Fluxo de Caixa (D4 | Caixa):</strong>
+        <div id="saldoCaixa">Total em Caixa: R$ 0,00</div>
+        <ul id="historicoCaixa" style="padding-left: 18px; margin: 6px 0 0 0;"></ul>
+      </div>
+    </div>
   </div>
 
   <script>
-    class Cliente {
-      constructor(nome, telefone) {
-        this.nome = nome;
-        this.telefone = telefone;
-      }
-    }
-
-    class MovimentacaoCaixa {
-      constructor(descricao, valor) {
-        this.tipo = "Entrada";
-        this.descricao = descricao;
-        this.valor = valor;
-        this.dataHora = new Date().toLocaleString("pt-BR");
-      }
-    }
-
-    class Encomenda {
-      constructor(cliente, produtoNome, valorUnitario, quantidade, dataEntrega, assinado) {
-        this.cliente = cliente;
-        this.produtoNome = produtoNome;
-        this.valorUnitario = valorUnitario;
-        this.quantidade = quantidade;
-        this.dataEntrega = dataEntrega;
-        this.assinado = assinado;
-        this.status = "Solicitado";
-      }
-      calcularTotal() { return this.valorUnitario * this.quantidade; }
-      calcularSinal() { return this.calcularTotal() * 0.5; }
-    }
+    const FLUXO_STATUS = ["Solicitado", "Em Produção", "Pronto", "Entregue"];
+    let encomendas = [];
+    let totalCaixa = 0;
 
     const canvas = document.getElementById('canvasAssinatura');
     const ctx = canvas.getContext('2d');
@@ -90,9 +84,14 @@
       ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
     });
 
+    function limparAssinatura() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      assinou = false;
+    }
+
     function registrarEncomenda() {
-      const nome = document.getElementById('cliente').value;
-      const telefone = document.getElementById('telefone').value;
+      const nome = document.getElementById('cliente').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
       const select = document.getElementById('produto');
       const qtd = parseInt(document.getElementById('qtd').value);
       const dataEntrega = document.getElementById('dataEntrega').value;
@@ -102,23 +101,52 @@
         return;
       }
 
-      const cliente = new Cliente(nome, telefone);
-      const pedido = new Encomenda(cliente, select.options[select.selectedIndex].text, parseFloat(select.value), qtd, dataEntrega, true);
-      const lancamentoCaixa = new MovimentacaoCaixa(`Sinal 50% - Encomenda (${cliente.nome})`, pedido.calcularSinal());
+      const valorTotal = parseFloat(select.value) * qtd;
+      const valorSinal = valorTotal * 0.5;
 
-      const divResumo = document.getElementById('resumo');
-      divResumo.style.display = 'block';
-      divResumo.innerHTML = `
-        <strong>Encomenda Registrada (D3 | Encomendas)</strong><br>
-        Cliente: ${pedido.cliente.nome} (${pedido.cliente.telefone})<br>
-        Item: ${pedido.quantidade}x ${pedido.produtoNome}<br>
-        Entrega: ${pedido.dataEntrega.replace("T", " ")} | Status: <b>${pedido.status}</b><br>
-        Total: R$ ${pedido.calcularTotal().toFixed(2)} | Sinal (50%): R$ ${pedido.calcularSinal().toFixed(2)}
-        <div class="caixa">
-          <strong>Lançamento Automático (D4 | Caixa):</strong><br>
-          ${lancamentoCaixa.tipo}: R$ ${lancamentoCaixa.valor.toFixed(2)} — ${lancamentoCaixa.descricao} (${lancamentoCaixa.dataHora})
+      encomendas.push({
+        id: encomendas.length + 1,
+        cliente: nome,
+        telefone,
+        produto: select.options[select.selectedIndex].text,
+        qtd,
+        dataEntrega: dataEntrega.replace("T", " "),
+        total: valorTotal,
+        sinal: valorSinal,
+        statusIndex: 0
+      });
+
+      totalCaixa += valorSinal;
+      document.getElementById('saldoCaixa').innerHTML = `<strong>Total em Caixa: R$ ${totalCaixa.toFixed(2)}</strong>`;
+      const li = document.createElement('li');
+      li.textContent = `+ R$ ${valorSinal.toFixed(2)} — Sinal Pedido #${encomendas.length} (${nome})`;
+      document.getElementById('historicoCaixa').appendChild(li);
+
+      atualizarFila();
+      limparAssinatura();
+    }
+
+    function avancarStatus(index) {
+      if (encomendas[index].statusIndex < FLUXO_STATUS.length - 1) {
+        encomendas[index].statusIndex++;
+        atualizarFila();
+      }
+    }
+
+    function atualizarFila() {
+      const container = document.getElementById('listaPedidos');
+      container.innerHTML = encomendas.map((p, idx) => `
+        <div class="pedido-item">
+          <strong>Pedido #${p.id} — ${p.cliente}</strong> (${p.telefone})<br>
+          ${p.qtd}x ${p.produto}<br>
+          Entrega: ${p.dataEntrega} | Sinal pago: R$ ${p.sinal.toFixed(2)}<br>
+          Status: <span class="badge">${FLUXO_STATUS[p.statusIndex]}</span>
+          ${p.statusIndex < FLUXO_STATUS.length - 1
+            ? `<button class="btn-secundario" onclick="avancarStatus(${idx})">Avançar para: ${FLUXO_STATUS[p.statusIndex + 1]}</button>`
+            : `<div style="color:green; font-weight:bold; margin-top:6px;">✓ Pedido Concluído</div>`}
         </div>
-      `;
+      `).join('');
     }
   </script>
 </body>
+</html>
