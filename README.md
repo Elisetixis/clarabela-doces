@@ -12,6 +12,7 @@ Desenvolver um sistema web sob medida para a doceria **Clarabela Doces**, automa
 - [Documento de Requisitos e Escopo (E1)](docs/requisitos_escopo.md)
 - [Arquitetura, Diagramas UML e Plano de Projeto (E2)](docs/arquitetura_modelagem.md)
 - [Modelo Orientado a Objetos e Manutenção (E3)](docs/modelo_oo.md)
+- [Análise Estruturada, DFD e Dicionário de Dados (E4)](docs/analise_estruturada.md)
 
 ## Como Executar o 1º Incremento (E3)
 1. Baixe ou clone este repositório.
