@@ -2,123 +2,205 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Clarabela Doces - Registro de Encomenda (E4)</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #fff5f7; padding: 20px; max-width: 600px; margin: auto; }
-    h2 { color: #b83256; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select, button { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-    canvas { border: 1px dashed #b83256; background: #fafafa; margin-top: 5px; cursor: crosshair; }
-    button { background: #b83256; color: white; border: none; font-weight: bold; margin-top: 15px; cursor: pointer; }
-    button:hover { background: #962443; }
-    .resumo { margin-top: 20px; padding: 15px; background: #e8f5e9; border-left: 4px solid #2e7d32; display: none; }
-    .caixa { margin-top: 10px; padding: 10px; background: #e3f2fd; border-left: 4px solid #1565c0; font-size: 0.9em; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clarabela Doces — Sistema de Gestão Artesanal</title>
+
+  <!-- Google Fonts: Tipografia Editorial + Interface Moderna -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS Próprio -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Lucide Icons & GSAP (Animações leves) -->
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="js/app.js" defer></script>
 </head>
 <body>
-  <div class="card">
-    <h2>Clarabela Doces — Nova Encomenda</h2>
-    <label>Nome do Cliente:</label>
-    <input type="text" id="cliente" placeholder="Ex: Mariana Silva">
+  <!-- Cabeçalho Institucional -->
+  <header class="topbar anim-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <i data-lucide="cake-slice"></i>
+      </div>
+      <div>
+        <h1>Clarabela Doces</h1>
+        <p class="subtitle">Gestão de Encomendas, Confeitaria &amp; Caixa</p>
+      </div>
+    </div>
 
-    <label>Telefone / WhatsApp:</label>
-    <input type="text" id="telefone" placeholder="Ex: (12) 99999-0000">
+    <div class="topbar-actions">
+      <div class="profile-pill">
+        <i data-lucide="user-check"></i>
+        <select id="perfil" aria-label="Perfil Operador">
+          <option value="Atendimento">Operador: Atendimento</option>
+          <option value="Gestao">Operador: Gestão</option>
+        </select>
+      </div>
+      <span class="version-badge">v1.0-final</span>
+    </div>
+  </header>
 
-    <label>Produto:</label>
-    <select id="produto">
-      <option value="140">Bolo Ninho com Morango (2kg) - R$ 140,00</option>
-      <option value="110">Cento de Brigadeiro Gourmet - R$ 110,00</option>
-      <option value="95">Torta Limão Siciliano - R$ 95,00</option>
-    </select>
+  <!-- Layout Principal em 2 Colunas -->
+  <main class="container">
+    <!-- Coluna 1: Balcão / Nova Encomenda -->
+    <section class="card anim-card">
+      <div class="card-header">
+        <span class="step-tag">Balcão</span>
+        <h2>Nova Encomenda</h2>
+      </div>
 
-    <label>Quantidade:</label>
-    <input type="number" id="qtd" value="1" min="1">
-
-    <label>Data e Hora da Entrega:</label>
-    <input type="datetime-local" id="dataEntrega">
-
-    <label>Assinatura Digital do Cliente (Desenhe abaixo):</label>
-    <canvas id="canvasAssinatura" width="540" height="100"></canvas>
-
-    <button onclick="registrarEncomenda()">Registrar Encomenda e Lançar Sinal</button>
-    <div id="resumo" class="resumo"></div>
-  </div>
-
-  <script>
-    class Cliente {
-      constructor(nome, telefone) {
-        this.nome = nome;
-        this.telefone = telefone;
-      }
-    }
-
-    class MovimentacaoCaixa {
-      constructor(descricao, valor) {
-        this.tipo = "Entrada";
-        this.descricao = descricao;
-        this.valor = valor;
-        this.dataHora = new Date().toLocaleString("pt-BR");
-      }
-    }
-
-    class Encomenda {
-      constructor(cliente, produtoNome, valorUnitario, quantidade, dataEntrega, assinado) {
-        this.cliente = cliente;
-        this.produtoNome = produtoNome;
-        this.valorUnitario = valorUnitario;
-        this.quantidade = quantidade;
-        this.dataEntrega = dataEntrega;
-        this.assinado = assinado;
-        this.status = "Solicitado";
-      }
-      calcularTotal() { return this.valorUnitario * this.quantidade; }
-      calcularSinal() { return this.calcularTotal() * 0.5; }
-    }
-
-    const canvas = document.getElementById('canvasAssinatura');
-    const ctx = canvas.getContext('2d');
-    let desenhando = false, assinou = false;
-
-    canvas.addEventListener('mousedown', () => { desenhando = true; assinou = true; });
-    canvas.addEventListener('mouseup', () => { desenhando = false; ctx.beginPath(); });
-    canvas.addEventListener('mousemove', (e) => {
-      if (!desenhando) return;
-      const rect = canvas.getBoundingClientRect();
-      ctx.lineWidth = 2; ctx.lineCap = 'round';
-      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-      ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-    });
-
-    function registrarEncomenda() {
-      const nome = document.getElementById('cliente').value;
-      const telefone = document.getElementById('telefone').value;
-      const select = document.getElementById('produto');
-      const qtd = parseInt(document.getElementById('qtd').value);
-      const dataEntrega = document.getElementById('dataEntrega').value;
-
-      if (!nome || !telefone || !dataEntrega || !assinou) {
-        alert("Preencha nome, telefone, data de entrega e colete a assinatura!");
-        return;
-      }
-
-      const cliente = new Cliente(nome, telefone);
-      const pedido = new Encomenda(cliente, select.options[select.selectedIndex].text, parseFloat(select.value), qtd, dataEntrega, true);
-      const lancamentoCaixa = new MovimentacaoCaixa(`Sinal 50% - Encomenda (${cliente.nome})`, pedido.calcularSinal());
-
-      const divResumo = document.getElementById('resumo');
-      divResumo.style.display = 'block';
-      divResumo.innerHTML = `
-        <strong>Encomenda Registrada (D3 | Encomendas)</strong><br>
-        Cliente: ${pedido.cliente.nome} (${pedido.cliente.telefone})<br>
-        Item: ${pedido.quantidade}x ${pedido.produtoNome}<br>
-        Entrega: ${pedido.dataEntrega.replace("T", " ")} | Status: <b>${pedido.status}</b><br>
-        Total: R$ ${pedido.calcularTotal().toFixed(2)} | Sinal (50%): R$ ${pedido.calcularSinal().toFixed(2)}
-        <div class="caixa">
-          <strong>Lançamento Automático (D4 | Caixa):</strong><br>
-          ${lancamentoCaixa.tipo}: R$ ${lancamentoCaixa.valor.toFixed(2)} — ${lancamentoCaixa.descricao} (${lancamentoCaixa.dataHora})
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cliente">Nome do Cliente</label>
+          <div class="input-wrapper">
+            <i data-lucide="user"></i>
+            <input type="text" id="cliente" maxlength="100" placeholder="Ex: Mariana Silva">
+          </div>
         </div>
-      `;
-    }
-  </script>
+
+        <div class="form-group">
+          <label for="telefone">WhatsApp / Telefone</label>
+          <div class="input-wrapper">
+            <i data-lucide="phone"></i>
+            <input type="text" id="telefone" maxlength="15" placeholder="(12) 99999-0000">
+          </div>
+        </div>
+      </div>
+
+      <!-- Catálogo Visual de Produtos -->
+      <div class="form-group">
+        <label>Escolha o Produto</label>
+        <div class="product-grid" id="productGrid">
+          <div class="product-card active" data-nome="Bolo Ninho com Morango (2kg)" data-preco="140">
+            <img src="img/bolo-ninho-morango.jpg" alt="Bolo Ninho com Morango">
+            <div class="product-info">
+              <span class="product-title">Bolo Ninho c/ Morango</span>
+              <span class="product-meta">2kg • Artesanal</span>
+              <strong class="product-price">R$ 140,00</strong>
+            </div>
+          </div>
+
+          <div class="product-card" data-nome="Cento de Brigadeiro Gourmet" data-preco="110">
+            <img src="img/brigadeiro-gourmet.jpg" alt="Cento de Brigadeiro Gourmet">
+            <div class="product-info">
+              <span class="product-title">Brigadeiro Gourmet</span>
+              <span class="product-meta">100 unidades</span>
+              <strong class="product-price">R$ 110,00</strong>
+            </div>
+          </div>
+
+          <div class="product-card" data-nome="Torta Limão Siciliano" data-preco="95">
+            <img src="img/torta-limao.jpg" alt="Torta Limão Siciliano">
+            <div class="product-info">
+              <span class="product-title">Torta Limão Siciliano</span>
+              <span class="product-meta">Merengue maçaricado</span>
+              <strong class="product-price">R$ 95,00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="qtd">Quantidade</label>
+          <div class="qty-stepper">
+            <button type="button" id="btnMenos" aria-label="Diminuir quantidade">-</button>
+            <input type="number" id="qtd" value="1" min="1" max="50" readonly>
+            <button type="button" id="btnMais" aria-label="Aumentar quantidade">+</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dataEntrega">Data e Hora da Entrega</label>
+          <div class="input-wrapper">
+            <i data-lucide="calendar-clock"></i>
+            <input type="datetime-local" id="dataEntrega">
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumo Financeiro Dinâmico -->
+      <div class="preview-valores" id="previewValores">
+        <div>
+          <span>Total do Pedido</span>
+          <strong id="previewTotal">R$ 140,00</strong>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <span>Sinal Obrigatório (50%)</span>
+          <strong class="highlight-gold" id="previewSinal">R$ 70,00</strong>
+        </div>
+      </div>
+
+      <!-- Assinatura Digital -->
+      <div class="form-group">
+        <div class="label-row">
+          <label>Assinatura Digital do Cliente</label>
+          <button type="button" class="btn-link" id="btnLimparAssinatura">
+            <i data-lucide="eraser"></i> Limpar traço
+          </button>
+        </div>
+        <div class="canvas-wrapper">
+          <span class="canvas-placeholder" id="canvasPlaceholder">Assine aqui com o mouse ou dedo</span>
+          <canvas id="canvasAssinatura" width="460" height="100"></canvas>
+        </div>
+      </div>
+
+      <div id="msgErro" class="alert-error" role="alert"></div>
+
+      <button type="button" class="btn-primary" id="btnRegistrar">
+        <i data-lucide="check-circle-2"></i> Confirmar Pedido e Lançar Sinal
+      </button>
+    </section>
+
+    <!-- Coluna 2: Confeitaria e Fluxo de Caixa -->
+    <div class="right-column">
+      <!-- Fila de Produção -->
+      <section class="card anim-card">
+        <div class="card-header-between">
+          <div>
+            <span class="step-tag tag-kitchen">Confeitaria</span>
+            <h2>Fila de Produção</h2>
+          </div>
+          <div class="filter-tabs" id="filterTabs">
+            <button type="button" class="tab active" data-filter="todos">Todos</button>
+            <button type="button" class="tab" data-filter="abertos">Em Aberto</button>
+            <button type="button" class="tab" data-filter="entregues">Entregues</button>
+          </div>
+        </div>
+
+        <div id="listaPedidos" class="orders-list">
+          <div class="empty-state">
+            <i data-lucide="chef-hat"></i>
+            <p>Nenhuma encomenda na fila da cozinha ainda.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fluxo de Caixa (D4) -->
+      <section class="card caixa-card anim-card">
+        <div class="caixa-header">
+          <div class="caixa-title">
+            <i data-lucide="wallet"></i>
+            <div>
+              <h3>Fluxo de Caixa Diário</h3>
+              <span>Depósito D4 • Entradas de Sinais e Quitações</span>
+            </div>
+          </div>
+          <div class="caixa-saldo">
+            <span>Saldo Atual</span>
+            <strong id="saldoCaixa">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <ul id="historicoCaixa" class="caixa-list">
+          <li class="caixa-empty">Aguardando primeira movimentação financeira...</li>
+        </ul>
+      </section>
+    </div>
+  </main>
 </body>
+</html>
