@@ -8,22 +8,17 @@ Desenvolver um sistema web sob medida para a doceria **Clarabela Doces**, automa
 - **Atendimento:** Cadastro de clientes, lançamento de encomendas e emissão de termos com assinatura.
 - **Produção / Confeitaria:** Controle visual dos pedidos a serem produzidos e prazos de entrega.
 
-## Documentação do Projeto
-- [Documento de Requisitos e Escopo (E1)](docs/requisitos_escopo.md)
+## 📁 Documentação do Projeto
+- [Documento de Requisitos e Escopo (E1)](requisitos_escopo.md)
 - [Arquitetura, Diagramas UML e Plano de Projeto (E2)](docs/arquitetura_modelagem.md)
 - [Modelo Orientado a Objetos e Manutenção (E3)](docs/modelo_oo.md)
 - [Análise Estruturada, DFD e Dicionário de Dados (E4)](docs/analise_estruturada.md)
+- [Testes, Bugs e Análise de Segurança (E6)](docs/testes_seguranca.md)
 
-## Como Executar o 1º Incremento (E3)
-1. Baixe ou clone este repositório.
-2. Abra o arquivo `src/index.html` diretamente em qualquer navegador (Chrome, Edge ou Firefox).
-3. Preencha os dados do cliente, assine no quadro digital e clique em **Registrar Encomenda**.
-
-## Tecnologias Previstas
-- **Front-end:** HTML, CSS, JavaScript
-- **Back-end:** PHP / Python (FastAPI)
-- **Banco de Dados:** MySQL / PostgreSQL
-- **Controle de Versão:** Git & GitHub
+## 🚀 Instalação, Dependências e Uso (v1.0-final)
+- **Dependências:** Nenhuma (HTML5, CSS3 e JavaScript puro, sem necessidade de servidor ou pacotes externos).
+- **Instalação:** Clone o repositório (`git clone https://github.com/ElisetiXis/clarabela-doces.git`) ou baixe o arquivo `src/index.html`.
+- **Execução e Uso:** Abra `src/index.html` em qualquer navegador moderno (Chrome, Edge ou Firefox), preencha os dados da encomenda com data futura, colete a assinatura digital no quadro e acompanhe a produção e o fluxo de caixa na coluna ao lado.
 
 ## Equipe
 - **Luiz** - *Arquitetura de Software / Back-end*
